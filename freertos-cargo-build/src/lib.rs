@@ -83,6 +83,7 @@ impl Builder {
     /// Default is loaded from ENV variable, see: ENV_KEY_FREERTOS_CONFIG
     pub fn freertos_config<P: AsRef<Path>>(&mut self, path: P) {
         self.freertos_config_dir = path.as_ref().to_path_buf();
+        println!("freertos_config_dir = {:?}",self.freertos_config_dir );
     }
 
     /// Set the path to shim.c (required for freertos-rust)

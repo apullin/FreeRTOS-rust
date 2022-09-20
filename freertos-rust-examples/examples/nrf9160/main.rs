@@ -41,7 +41,7 @@ unsafe fn DefaultHandler(irqn: i16) {
 
 
 #[exception]
-fn HardFault(_ef: &ExceptionFrame) -> ! {
+unsafe fn HardFault(_ef: &ExceptionFrame) -> ! {
     do_blink();
     loop {}
 }

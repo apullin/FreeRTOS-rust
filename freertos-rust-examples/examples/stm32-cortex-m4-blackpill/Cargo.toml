@@ -1,0 +1,29 @@
+[package]
+name = "freertos-rust-example-stm32-cortex-m4-blackpill"
+version = "0.1.1"
+authors = ["Tobias Kaupat <tk@lobaro.de>"]
+edition = "2018"
+description = """
+Example stm32-cortex-m4-blackpill
+"""
+keywords = ["FreeRTOS", "embedded", "demo", "examples"]
+repository = "https://github.com/lobaro/FreeRTOS-rust"
+
+[dependencies.freertos-rust]
+path = "../../../freertos-rust"
+
+[dependencies]
+cortex-m = "0.7.6"
+cortex-m-rt = "0.7.1"
+panic-halt = "0.2.0"
+embedded-hal = "0.2.7"
+stm32f4xx-hal = {version = "0.13.2", features = ["rt", "stm32f411"] }
+
+[build-dependencies]
+freertos-cargo-build = {path = "../../../freertos-cargo-build"}
+
+[[bin]]
+name = "stm32f047-segger-trace"
+test = false
+bench = false
+path = "main.rs"

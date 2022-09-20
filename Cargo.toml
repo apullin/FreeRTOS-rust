@@ -3,7 +3,13 @@
 members = [
     "freertos-rust",
     "freertos-cargo-build",
-    "freertos-rust-examples"
+    "freertos-rust-examples/examples/stm32f407-segger-trace",
+    "freertos-rust-examples/examples/stm32-cortex-m4-blackpill",
+    "freertos-rust-examples/examples/stm32-cortex-m3",
+    "freertos-rust-examples/examples/nrf9160",
+    "freertos-rust-examples/examples/linux",
+    # Can use this, once all Cargo.toml's are in place
+#    "freertos-rust-examples/examples/*"
 ]
 
 [profile.release]

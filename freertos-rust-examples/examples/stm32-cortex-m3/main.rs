@@ -11,10 +11,14 @@ use cortex_m_rt::exception;
 use cortex_m_rt::{entry, ExceptionFrame};
 use freertos_rust::*;
 use core::alloc::Layout;
-use stm32l1xx_hal as hal;
-use stm32l1xx_hal::hal::digital::v2::*;
-use stm32l1xx_hal::gpio::*;
-use stm32l1xx_hal::gpio::gpioa::PA1;
+
+use stm32f1xx_hal as hal;
+
+use hal::{
+    gpio::{self, Output, PushPull,PA1},
+    pac,
+    prelude::*
+};
 
 
 #[global_allocator]
@@ -58,11 +62,14 @@ fn do_blink_forever() -> ! {
 
 #[entry]
 fn main() -> ! {
-    let dp = hal::stm32::Peripherals::take().unwrap();
+    let dp = pac::Peripherals::take().unwrap();
 
     // Set up the LED, it's connected to pin PA1.
-    let gpioa: stm32l1xx_hal::gpio::gpioa::Parts = dp.GPIOA.split();
-    unsafe { LED = Some(gpioa.pa1.into_push_pull_output()); }
+    let mut gpioa = dp.GPIOA.split();
+
+    unsafe{
+        LED = Some(gpioa.pa1.into_push_pull_output(&mut gpioa.crl)); // note: the stm32f1xx_hal crate is a mess
+    }
 
     // Initial blink
     set_led(true);
@@ -75,13 +82,13 @@ fn main() -> ! {
 
     // TODO: What comes now does not work yet!
     // Initialize Tasks and start FreeRTOS
-    Task::new().name("hello").stack_size(128).priority(TaskPriority(1)).start(|_this_task| {
-        // Just blink
-        freertos_rust::CurrentTask::delay(Duration::ms(1000));
-        set_led(true);
-        freertos_rust::CurrentTask::delay(Duration::ms(1000));
-        set_led(false);
-    }).unwrap();
+    // Task::new().name("hello").stack_size(128).priority(TaskPriority(1)).start(|_this_task| {
+    //     // Just blink
+    //     freertos_rust::CurrentTask::delay(Duration::ms(1000));
+    //     set_led(true);
+    //     freertos_rust::CurrentTask::delay(Duration::ms(1000));
+    //     set_led(false);
+    // }).unwrap();
 
 
     // TODO: Starting the scheduler fails, we need debugging to find the issue
@@ -90,7 +97,7 @@ fn main() -> ! {
 }
 
 #[exception]
-fn DefaultHandler(_irqn: i16) {
+unsafe fn DefaultHandler(_irqn: i16) {
 // custom default handler
 // irqn is negative for Cortex-M exceptions
 // irqn is positive for device specific (line IRQ)
@@ -100,7 +107,7 @@ fn DefaultHandler(_irqn: i16) {
 
 
 #[exception]
-fn HardFault(_ef: &ExceptionFrame) -> ! {
+unsafe fn HardFault(_ef: &ExceptionFrame) -> ! {
 // Blink 3 times long when exception occures
     delay_n(10);
     for _ in 0..3 {
